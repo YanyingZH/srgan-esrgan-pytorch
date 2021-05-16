@@ -1,0 +1,31 @@
+# general settings
+name: 001_SRGAN_x4_f64b16_DIV2K_10_B2G1
+batch_size: 2
+workers: 4
+total_iter: 1000000
+lr: !!float 2e-4
+
+# dataset and data loader settings
+datasets:
+  train:
+    name: DIV2K
+    type: PairedImageDataset
+    dataroot_gt: datasets/train/GT/DIV2K_train_HR_sub
+    dataroot_lq: datasets/train/LQ/X4_sub
+
+
+# network structures
+in_channels: 3
+ngf: 64
+ndf: 64
+num_blocks: 16
+
+# 学习率的设定
+scheduler:
+  periods: 250000
+  eta_min: !!float 1e-7
+
+# 断点重启
+checkpoint:
+  resume: False
+  start_epoch: 0

@@ -1,0 +1,33 @@
+# general settings
+name: 003_ESRGAN_x4_f64b23_DIV2K_100_B32G1
+batch_size: 32
+workers: 4
+total_iter: 100
+lr: !!float 1e-4
+
+# dataset and data loader settings
+datasets:
+  train:
+    name: DIV2K
+    type: PairedImageDataset
+    dataroot_gt: datasets/train/GT/DIV2K_train_HR_sub
+    dataroot_lq: datasets/train/LQ/X4_sub
+    crop_size: 128
+
+
+# network structures
+in_channels: 3
+ngf: 64
+ndf: 64
+num_blocks: 16
+
+# 学习率的设定
+scheduler:
+  method: MultiStepLR
+  milestones: [10, 20, 40, 60]
+  gamma: 0.5
+
+# 断点重启
+checkpoint:
+  resume: False
+  start_epoch: 0

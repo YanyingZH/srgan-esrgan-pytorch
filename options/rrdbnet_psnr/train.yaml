@@ -1,0 +1,32 @@
+# general settings
+name: 004_RRDBNet_x4_f64b23_DIV2K_100_B32G1_wandb
+batch_size: 32
+workers: 4
+total_iter: 100
+lr: !!float 2e-4
+
+# dataset and data loader settings
+datasets:
+  train:
+    name: DIV2K
+    type: PairedImageDataset
+    dataroot_gt: datasets/train/GT/DIV2K_train_HR_sub
+    dataroot_lq: datasets/train/LQ/X4_sub
+    crop_size: 128
+
+
+# network structures
+in_channels: 3
+num_features: 64
+num_blocks: 23
+num_grow: 32
+
+# 学习率的设定
+scheduler:
+  periods: 250000
+  eta_min: !!float 1e-7
+
+# 断点重启
+checkpoint:
+  resume: False
+  start_epoch: 0

@@ -1,0 +1,8 @@
+# general settings
+name: 001_SRGAN_x4_f64b16_DIV2K_1000k_B16G1
+outroot: results
+
+# network structures
+in_channels: 3
+ngf: 64
+num_blocks: 16
