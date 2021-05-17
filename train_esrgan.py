@@ -70,7 +70,7 @@ netG = RRDBNet(opt['in_channels'], opt['ngf'], opt['num_blocks']).to(device)
 netD = RaDiscriminator(opt['in_channels'], opt['ndf']).to(device)
 
 # 网络初始化权重参数
-# netG.load_state_dict(osp.join(opt['outroot'], 'pretrained_models', 'RRDBNet_final.pth'))
+# netG.load_state_dict(osp.join('experiments', 'pretrained_models', 'RRDBNet_final.pth'))
 netD.apply(init_weights)
 netG.apply(init_weights_mini)
 
@@ -108,7 +108,7 @@ feature_extractor.eval()
 # 检查是否断点续训
 if opt['checkpoint']['resume']:
     start_epoch = opt['checkpoint']['start_epoch']
-    checkpoint_path = osp.join(opt['outroot'],
+    checkpoint_path = osp.join('experiments',
                                opt['name'],
                                'checkpoints',
                                'checkpoint_e{:03d}'.format(start_epoch-1))
@@ -225,13 +225,15 @@ for epoch in trange(opt['total_iter']):
         'optimizerD_state_dict': optimizerD.state_dict(),
         'D_losses': D_losses
     }
-    checkpoint_path = osp.join(opt['outroot'], opt['name'],
+    checkpoint_path = osp.join('experiments', opt['name'],
                                'checkpoints', 'checkpoint_e{:03d}'.format(epoch))
     torch.save(checkpoint, checkpoint_path)
-    wandb.save('netG_e{:03d}'.format(epoch))
-    wandb.save('netD_e{:03d}'.format(epoch))
-    netG.save(os.path.join(wandb.run.dir, 'netG_e{:03d}'.format(epoch)))
-    netD.save(os.path.join(wandb.run.dir, 'netD_e{:03d}'.format(epoch)))
+    netG_name = 'netG_e{:03d}'.format(epoch)
+    netD_name = 'netD_e{:03d}'.format(epoch)
+    wandb.save(netG_name)
+    torch.save(netG.state_dict(), osp.join(wandb.run.dir, netG_name))
+    wandb.save(netD_name)
+    torch.save(netD.state_dict(), osp.join(wandb.run.dir, netD_name))
 
 # 展示损失图
 plt.figure(figsize=(10, 5))
@@ -244,5 +246,5 @@ plt.legend()
 plt.show()
 
 # 保存模型
-torch.save(netG.state_dict(), osp.join(opt['outroot'], opt['name'], 'models', 'netG_final.pth'))
-torch.save(netD.state_dict(), osp.join(opt['outroot'], opt['name'], 'models', 'netD_final.pth'))
+torch.save(netG.state_dict(), osp.join('experiments', opt['name'], 'models', 'netG_final.pth'))
+torch.save(netD.state_dict(), osp.join('experiments', opt['name'], 'models', 'netD_final.pth'))

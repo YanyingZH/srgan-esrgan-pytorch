@@ -71,6 +71,7 @@ optimizer = optim.Adam(net.parameters(), lr=opt['lr'])
 # 设定学习率变化调度
 
 # wandb
+# os.environ['WANDB_MODE'] = 'offline'
 # 1. Start a new run
 wandb.init(project=opt['name'])
 
@@ -92,7 +93,7 @@ net.train()
 # 检查是否断点续训
 if opt['checkpoint']['resume']:
     start_epoch = opt['checkpoint']['start_epoch']
-    checkpoint_path = osp.join(opt['outroot'],
+    checkpoint_path = osp.join('experiments',
                                opt['name'],
                                'checkpoints',
                                'checkpoint_e{:03d}'.format(start_epoch-1))
@@ -139,11 +140,12 @@ for epoch in trange(start_epoch, opt['total_iter']):
         'optimizer_state_dict': optimizer.state_dict(),
         'losses': losses
     }
-    checkpoint_path = osp.join(opt['outroot'], opt['name'],
+    checkpoint_path = osp.join('experiments', opt['name'],
                                'checkpoints', 'checkpoint_e{:03d}'.format(epoch))
     torch.save(checkpoint, checkpoint_path)
-    wandb.save('net_e{:03d}'.format(epoch))
-    net.save(os.path.join(wandb.run.dir, 'net_e{:03d}'.format(epoch)))
+    net_name = 'net_e{:03d}'.format(epoch)
+    wandb.save(net_name)
+    torch.save(net.state_dict(), osp.join(wandb.run.dir, net_name))
 
 
 # 展示损失图
@@ -156,5 +158,5 @@ plt.legend()
 plt.show()
 
 # 保存模型
-torch.save(net.state_dict(), osp.join(opt['outroot'], opt['name'], 'models', 'RRDBNet_final.pth'))
+torch.save(net.state_dict(), osp.join('experiments', opt['name'], 'models', 'RRDBNet_final.pth'))
 

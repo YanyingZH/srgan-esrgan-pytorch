@@ -1,7 +1,7 @@
 # general settings
-name: 004_RRDBNet_x4_f64b23_DIV2K_100_B32G1_wandb
-batch_size: 32
-workers: 4
+name: 004_RRDBNet_x4_f64b23_DIV2K_100_B23G1_wandb
+batch_size: 23
+workers: 12
 total_iter: 100
 lr: !!float 2e-4
 

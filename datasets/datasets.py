@@ -11,7 +11,7 @@ from PIL import Image
 from torch.utils.data import Dataset
 import torchvision.transforms.functional as TF
 from random import random
-from transforms import paired_random_crop
+from datasets.transforms import paired_random_crop
 import numpy as np
 
 
