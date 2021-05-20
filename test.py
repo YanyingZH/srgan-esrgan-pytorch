@@ -12,6 +12,11 @@ import cv2
 import numpy as np
 import torch
 from models import *
+import yaml
+
+# 读取配置文件
+fs = open("options/rrdbnet_psnr/train.yaml", encoding="UTF-8")
+opt = yaml.load(fs, Loader=yaml.FullLoader)
 
 model_path = 'models/RRDB_ESRGAN_x4.pth'  # models/RRDB_ESRGAN_x4.pth OR models/RRDB_PSNR_x4.pth
 device = torch.device('cuda')  # if you want to run on CPU, change 'cuda' -> cpu

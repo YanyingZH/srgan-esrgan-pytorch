@@ -1,8 +1,9 @@
 # general settings
-name: 001_SRGAN_x4_f64b16_DIV2K_1000k_B16G1
+name: 004_RRDBNet_x4_f64b23_DIV2K_100_B23G1_wandb
 outroot: results
 
 # network structures
 in_channels: 3
-ngf: 64
-num_blocks: 16
+num_features: 64
+num_blocks: 23
+num_grow: 32
