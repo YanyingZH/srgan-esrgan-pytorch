@@ -22,6 +22,22 @@ class UpSampleBlock(nn.Module):
         return self.prelu(self.shuffle(self.conv(x)))
 
 
+# 添加高斯噪声
+class GaussianNoise(nn.Module):
+    def __init__(self, sigma=0.1, is_relative_detach=False):
+        super().__init__()
+        self.sigma = sigma
+        self.is_relative_detach = is_relative_detach
+        self.noise = torch.tensor(0, dtype=torch.float).to(torch.device('cuda'))
+
+    def forward(self, x):
+        if self.training and self.sigma != 0:
+            scale = self.sigma * x.detach() if self.is_relative_detach else self.sigma * x
+            sampled_noise = self.noise.repeat(*x.size()).normal_() * scale
+            x = x + sampled_noise
+        return x
+
+
 # 定义残差块
 class ResidualBLock(nn.Module):
     def __init__(self, num_features=64):
@@ -41,8 +57,9 @@ class ResidualBLock(nn.Module):
 
 # 定义残差稠密块
 class ResidualDenseBlock(nn.Module):
-    def __init__(self, num_features=64, num_grow=32):
+    def __init__(self, num_features=64, num_grow=32, gaussian_noise=False):
         super(ResidualDenseBlock, self).__init__()
+        self.noise = GaussianNoise() if gaussian_noise else None
         self.conv1 = nn.Conv2d(num_features, num_grow, 3, 1, 1)
         self.conv2 = nn.Conv2d(num_features+num_grow*1, num_grow, 3, 1, 1)
         self.conv3 = nn.Conv2d(num_features+num_grow*2, num_grow, 3, 1, 1)
@@ -57,23 +74,22 @@ class ResidualDenseBlock(nn.Module):
         y3 = self.lrelu(self.conv3(torch.cat((x, y1, y2), 1)))
         y4 = self.lrelu(self.conv4(torch.cat((x, y1, y2, y3), 1)))
         y5 = self.conv5(torch.cat((x, y1, y2, y3, y4), 1))
-        return y5 * 0.2 + x
+        return self.noise(y5 * 0.2 + x)
 
 
 # 定义RRDB
 class RRDB(nn.Module):
-    def __init__(self, num_features=64, num_grow=32):
+    def __init__(self, num_features=64, num_grow=32, gaussian_noise=False):
         super(RRDB, self).__init__()
-        self.b1 = ResidualDenseBlock(num_features, num_grow)
-        self.b2 = ResidualDenseBlock(num_features, num_grow)
-        self.b3 = ResidualDenseBlock(num_features, num_grow)
+        self.b1 = ResidualDenseBlock(num_features, num_grow, gaussian_noise)
+        self.b2 = ResidualDenseBlock(num_features, num_grow, gaussian_noise)
+        self.b3 = ResidualDenseBlock(num_features, num_grow, gaussian_noise)
 
     def forward(self, x):
         out = self.b1(x)
         out = self.b2(out)
         out = self.b3(out)
         return out * 0.2 + x
-
 
 
 

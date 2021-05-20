@@ -6,31 +6,41 @@
 @Author  ：AmazingPeterZhu
 @Date    ：2021/4/23 下午3:19 
 """
-import yaml
-import cv2
-import torch
 import os.path as osp
+import glob
+import cv2
+import numpy as np
+import torch
+from models import *
 
-from models import SRResNet
+model_path = 'models/RRDB_ESRGAN_x4.pth'  # models/RRDB_ESRGAN_x4.pth OR models/RRDB_PSNR_x4.pth
+device = torch.device('cuda')  # if you want to run on CPU, change 'cuda' -> cpu
+# device = torch.device('cpu')
 
+test_img_folder = 'LR/*'
 
-# 读取配置文件
-fs = open("options/srgan/test.yaml", encoding="UTF-8")
-opt = yaml.load(fs, Loader=yaml.FullLoader)
+model = RRDBNet(3, 64, 23, 32)
+model.load_state_dict(torch.load(model_path), strict=True)
+model.eval()
+model = model.to(device)
 
-# 读取模型
-netG = SRResNet(opt['in_channels'], opt['ngf'], opt['num_blocks'])
+print('Model path {:s}. \nTesting...'.format(model_path))
 
-# 加载数据
-PATH = osp.join(opt['outroot'], opt['name'], 'models', 'netG.pth')
-netG.load_state_dict(torch.load(PATH))
+idx = 0
+for path in glob.glob(test_img_folder):
+    idx += 1
+    base = osp.splitext(osp.basename(path))[0]
+    print(idx, base)
+    # read images
+    img = cv2.imread(path, cv2.IMREAD_COLOR)
+    img = img * 1.0 / 255
+    img = torch.from_numpy(np.transpose(img[:, :, [2, 1, 0]], (2, 0, 1))).float()
+    img_LR = img.unsqueeze(0)
+    img_LR = img_LR.to(device)
 
-# 读取图片
-img_n = cv2.imread("./LR.png")
-img = torch.from_numpy(img_n)
-
-# 测试
-result = netG(img)
-result_n = result.numpy()
-cv2.imwrite('./results/001_SRGAN_x4_f64b16_DIV2K_1000k_B16G1/SRGAN_SR.png', result_n)
+    with torch.no_grad():
+        output = model(img_LR).data.squeeze().float().cpu().clamp_(0, 1).numpy()
+    output = np.transpose(output[[2, 1, 0], :, :], (1, 2, 0))
+    output = (output * 255.0).round()
+    cv2.imwrite('results/{:s}_rlt.png'.format(base), output)
 

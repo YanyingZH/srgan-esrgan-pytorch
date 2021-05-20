@@ -66,7 +66,11 @@ content_criterion = nn.L1Loss().to(device)
 
 # 网络实例化
 feature_extractor = FeatureExtractor(torchvision.models.vgg19(pretrained=True), feature_layer=35).to(device)
-netG = RRDBNet(opt['in_channels'], opt['ngf'], opt['num_blocks']).to(device)
+netG = RRDBNet(opt['in_channels'],
+               opt['ngf'],
+               opt['num_blocks'],
+               opt['num_grow'],
+               opt['gaussian_noise']).to(device)
 netD = RaDiscriminator(opt['in_channels'], opt['ndf']).to(device)
 
 # 网络初始化权重参数

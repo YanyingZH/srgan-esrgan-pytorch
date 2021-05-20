@@ -19,13 +19,15 @@ class RRDBNet(nn.Module):
     def __init__(self, in_channels=3,
                  num_features=64,
                  num_blocks=23,
-                 num_grow=32):
+                 num_grow=32,
+                 gaussian_noise=False):
         super(RRDBNet, self).__init__()
         self.conv1 = nn.Conv2d(in_channels, num_features, 3, 1, 1)
         self.body = utils.stack_block(block=RRDB,
                                       num_blocks=num_blocks,
                                       num_features=num_features,
-                                      num_grow=num_grow)
+                                      num_grow=num_grow,
+                                      gaussian_noise=gaussian_noise)
         self.conv2 = nn.Conv2d(num_features, num_features, 3, 1, 1)
         self.usb1 = UpSampleBlock(num_features, 4*num_features)
         self.usb2 = UpSampleBlock(num_features, 4*num_features)

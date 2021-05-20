@@ -20,6 +20,8 @@ in_channels: 3
 ngf: 64
 ndf: 64
 num_blocks: 16
+num_grow: 32
+gaussian_noise: False
 
 # 学习率的设定
 scheduler:
