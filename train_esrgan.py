@@ -9,11 +9,9 @@
 import os
 import time
 import os.path as osp
-import torch
 import torch.nn as nn
 import torch.optim as optim
 import torch.utils.data
-import torchvision.transforms as transforms
 import torchvision
 import yaml
 import matplotlib.pyplot as plt
@@ -88,6 +86,7 @@ schedulerG = optim.lr_scheduler.MultiStepLR(optimizerG,
                                             gamma=opt['scheduler']['gamma'])
 
 # wandb
+os.environ['WANDB_MODE'] = 'offline'
 # 1. Start a new run
 wandb.init(project=opt['name'])
 
@@ -182,7 +181,7 @@ for epoch in trange(opt['total_iter']):
 
         # 鉴别器评分
         score_real = netD(gt)
-        score_fake = netD(fake).detach()
+        score_fake = netD(fake.detach())
 
         discriminator_rf = score_real - score_fake.mean()
         discriminator_fr = score_fake - score_real.mean()

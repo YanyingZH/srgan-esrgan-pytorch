@@ -59,6 +59,7 @@ class ResidualBLock(nn.Module):
 class ResidualDenseBlock(nn.Module):
     def __init__(self, num_features=64, num_grow=32, gaussian_noise=False):
         super(ResidualDenseBlock, self).__init__()
+        self.gaussian_noise = gaussian_noise
         self.noise = GaussianNoise() if gaussian_noise else None
         self.conv1 = nn.Conv2d(num_features, num_grow, 3, 1, 1)
         self.conv2 = nn.Conv2d(num_features+num_grow*1, num_grow, 3, 1, 1)
@@ -74,7 +75,10 @@ class ResidualDenseBlock(nn.Module):
         y3 = self.lrelu(self.conv3(torch.cat((x, y1, y2), 1)))
         y4 = self.lrelu(self.conv4(torch.cat((x, y1, y2, y3), 1)))
         y5 = self.conv5(torch.cat((x, y1, y2, y3, y4), 1))
-        return self.noise(y5 * 0.2 + x)
+        if self.gaussian_noise:
+            return self.noise(y5 * 0.2 + x)
+        else:
+            return y5 * 0.2 + x
 
 
 # 定义RRDB
