@@ -1,8 +1,8 @@
 # general settings
-name: 003_ESRGAN_x4_f64b23_DIV2K_100_B32G1
-batch_size: 32
+name: 008_ESRGANNoise_x4_f64b23_DIV2K_500_B18G1_wandb_pretrained
+batch_size: 18
 workers: 4
-total_iter: 100
+total_iter: 500
 lr: !!float 1e-4
 
 # dataset and data loader settings
@@ -21,7 +21,7 @@ ngf: 64
 ndf: 64
 num_blocks: 16
 num_grow: 32
-gaussian_noise: False
+gaussian_noise: True
 
 # 学习率的设定
 scheduler:

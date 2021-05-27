@@ -28,5 +28,5 @@ scheduler:
 
 # 断点重启
 checkpoint:
-  resume: False
-  start_epoch: 0
+  resume: True
+  start_epoch: 14

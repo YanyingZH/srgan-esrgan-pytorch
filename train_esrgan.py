@@ -9,6 +9,7 @@
 import os
 import time
 import os.path as osp
+import torch
 import torch.nn as nn
 import torch.optim as optim
 import torch.utils.data
@@ -72,9 +73,9 @@ netG = RRDBNet(opt['in_channels'],
 netD = RaDiscriminator(opt['in_channels'], opt['ndf']).to(device)
 
 # 网络初始化权重参数
-# netG.load_state_dict(osp.join('experiments', 'pretrained_models', 'RRDBNet_final.pth'))
+netG.load_state_dict(torch.load(osp.join('experiments', 'pretrained_models', 'RRDBNet_final.pth')), strict=False)
 netD.apply(init_weights)
-netG.apply(init_weights_mini)
+# netG.apply(init_weights_mini)
 
 # 设定优化器
 optimizerG = optim.Adam(netG.parameters(), lr=opt['lr'])
@@ -86,7 +87,7 @@ schedulerG = optim.lr_scheduler.MultiStepLR(optimizerG,
                                             gamma=opt['scheduler']['gamma'])
 
 # wandb
-os.environ['WANDB_MODE'] = 'offline'
+# os.environ['WANDB_MODE'] = 'offline'
 # 1. Start a new run
 wandb.init(project=opt['name'])
 
@@ -133,7 +134,7 @@ else:
 T1 = time.perf_counter()
 
 print("Starting Training Loop...")
-for epoch in trange(opt['total_iter']):
+for epoch in trange(start_epoch, opt['total_iter']):
     for i, img_dic in enumerate(dataloader):
 
         # 配置数据
@@ -152,7 +153,7 @@ for epoch in trange(opt['total_iter']):
         fake = netG(lq)
 
         # 鉴别器评分
-        score_real = netD(gt).detach()
+        score_real = netD(gt)
         score_fake = netD(fake)
 
         discriminator_rf = score_real - score_fake.mean()
@@ -215,28 +216,29 @@ for epoch in trange(opt['total_iter']):
             wandb.log({"G_loss": errG})
             wandb.log({"D_loss": errD})
 
-    # 学习率变化
-    schedulerG.step()
+    if (epoch + 1) % 10 == 0:
+        # 学习率变化
+        schedulerG.step()
 
-    # 保存断点
-    checkpoint = {
-        'netG_state_dict': netG.state_dict(),
-        'optimizerG_state_dict': optimizerG.state_dict(),
-        'G_losses': G_losses,
-        'schedulerG_state_dict': schedulerG.state_dict(),
-        'netD_state_dict': netD.state_dict(),
-        'optimizerD_state_dict': optimizerD.state_dict(),
-        'D_losses': D_losses
-    }
-    checkpoint_path = osp.join('experiments', opt['name'],
-                               'checkpoints', 'checkpoint_e{:03d}'.format(epoch))
-    torch.save(checkpoint, checkpoint_path)
-    netG_name = 'netG_e{:03d}'.format(epoch)
-    netD_name = 'netD_e{:03d}'.format(epoch)
-    wandb.save(netG_name)
-    torch.save(netG.state_dict(), osp.join(wandb.run.dir, netG_name))
-    wandb.save(netD_name)
-    torch.save(netD.state_dict(), osp.join(wandb.run.dir, netD_name))
+        # 保存断点
+        checkpoint = {
+            'netG_state_dict': netG.state_dict(),
+            'optimizerG_state_dict': optimizerG.state_dict(),
+            'G_losses': G_losses,
+            'schedulerG_state_dict': schedulerG.state_dict(),
+            'netD_state_dict': netD.state_dict(),
+            'optimizerD_state_dict': optimizerD.state_dict(),
+            'D_losses': D_losses
+        }
+        checkpoint_path = osp.join('experiments', opt['name'],
+                                   'checkpoints', 'checkpoint_e{:03d}'.format(epoch))
+        torch.save(checkpoint, checkpoint_path)
+        netG_name = 'netG_e{:03d}'.format(epoch)
+        netD_name = 'netD_e{:03d}'.format(epoch)
+        wandb.save(netG_name)
+        torch.save(netG.state_dict(), osp.join(wandb.run.dir, netG_name))
+        wandb.save(netD_name)
+        torch.save(netD.state_dict(), osp.join(wandb.run.dir, netD_name))
 
 # 展示损失图
 plt.figure(figsize=(10, 5))
@@ -251,3 +253,5 @@ plt.show()
 # 保存模型
 torch.save(netG.state_dict(), osp.join('experiments', opt['name'], 'models', 'netG_final.pth'))
 torch.save(netD.state_dict(), osp.join('experiments', opt['name'], 'models', 'netD_final.pth'))
+torch.save(netG.state_dict(), osp.join(wandb.run.dir, 'netG_final.pth'))
+torch.save(netD.state_dict(), osp.join(wandb.run.dir, 'netD_final.pth'))
