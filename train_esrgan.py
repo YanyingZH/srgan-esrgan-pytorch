@@ -119,7 +119,7 @@ if opt['checkpoint']['resume']:
     netG.load_state_dict(checkpoint['netG_state_dict'])
     optimizerG.load_state_dict(checkpoint['optimizerG_state_dict'])
     G_losses = checkpoint['G_losses']
-    schedulerG = checkpoint['schedulerG_state_dict']
+    schedulerG.load_state_dict(checkpoint['schedulerG_state_dict'])
     netD.load_state_dict(checkpoint['netD_state_dict'])
     optimizerD.load_state_dict(checkpoint['optimizerD_state_dict'])
     D_losses = checkpoint['D_losses']
