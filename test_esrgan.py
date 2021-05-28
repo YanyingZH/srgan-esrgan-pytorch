@@ -1,11 +1,12 @@
 # -*- coding: UTF-8 -*-
 """
-@Project ：srgan-esrgan-pytorch
-@File    ：test.py
+@Project ：srgan-esrgan-pytorch 
+@File    ：test_esrgan.py
 @IDE     ：PyCharm 
 @Author  ：AmazingPeterZhu
-@Date    ：2021/4/23 下午3:19 
+@Date    ：2021/5/28 上午11:14 
 """
+import os
 import os.path as osp
 import glob
 import cv2
@@ -15,16 +16,29 @@ from models import *
 import yaml
 
 # 读取配置文件
-fs = open("options/rrdbnet_psnr/train.yaml", encoding="UTF-8")
+fs = open("options/rrdbnet_psnr/test.yaml", encoding="UTF-8")
 opt = yaml.load(fs, Loader=yaml.FullLoader)
 
-model_path = 'models/RRDB_ESRGAN_x4.pth'  # models/RRDB_ESRGAN_x4.pth OR models/RRDB_PSNR_x4.pth
+# 创建输出文件夹
+# 文件夹名字为配置文件中设置的name
+try:
+    os.makedirs(osp.join('results', opt['name']))
+except OSError:
+    pass
+
+model_path = os.path.join('experiments', opt['name'], 'models', 'RRDBNet_final.pth') # models path
 device = torch.device('cuda')  # if you want to run on CPU, change 'cuda' -> cpu
 # device = torch.device('cpu')
 
-test_img_folder = 'LR/*'
+test_img_folder = 'LR_test_img/*'
 
-model = RRDBNet(3, 64, 23, 32)
+# 网络参数
+in_channels = opt['in_channels']
+num_features = opt['num_features']
+num_blocks = opt['num_blocks']
+num_grow = opt['num_grow']
+
+model = RRDBNet(in_channels, num_features, num_blocks, num_grow)
 model.load_state_dict(torch.load(model_path), strict=True)
 model.eval()
 model = model.to(device)
@@ -47,5 +61,4 @@ for path in glob.glob(test_img_folder):
         output = model(img_LR).data.squeeze().float().cpu().clamp_(0, 1).numpy()
     output = np.transpose(output[[2, 1, 0], :, :], (1, 2, 0))
     output = (output * 255.0).round()
-    cv2.imwrite('results/{:s}_rlt.png'.format(base), output)
-
+    cv2.imwrite(os.path.join('results', opt['name'], '{:s}_rlt.png'.format(base)), output)
