@@ -16,7 +16,7 @@ from models import *
 import yaml
 
 # 读取配置文件
-fs = open("options/rrdbnet_psnr/test.yaml", encoding="UTF-8")
+fs = open("options/esrgan/test.yaml", encoding="UTF-8")
 opt = yaml.load(fs, Loader=yaml.FullLoader)
 
 # 创建输出文件夹
@@ -26,7 +26,7 @@ try:
 except OSError:
     pass
 
-model_path = os.path.join('experiments', opt['name'], 'models', 'RRDBNet_final.pth') # models path
+model_path = os.path.join('experiments', opt['name'], 'models', 'netG_final.pth') # models path
 device = torch.device('cuda')  # if you want to run on CPU, change 'cuda' -> cpu
 # device = torch.device('cpu')
 
@@ -34,9 +34,11 @@ test_img_folder = 'LR_test_img/*'
 
 # 网络参数
 in_channels = opt['in_channels']
-num_features = opt['num_features']
+num_features = opt['ngf']
 num_blocks = opt['num_blocks']
 num_grow = opt['num_grow']
+gaussian_noise = opt['gaussian_noise']
+
 
 model = RRDBNet(in_channels, num_features, num_blocks, num_grow)
 model.load_state_dict(torch.load(model_path), strict=True)

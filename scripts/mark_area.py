@@ -1,5 +1,5 @@
 # -*- coding: UTF-8 -*-
-"""
+""" 标注区域画框并且裁剪
 @Project ：srgan-esrgan-pytorch 
 @File    ：mark_area.py
 @IDE     ：PyCharm 
@@ -9,16 +9,34 @@
 import cv2
 import os
 
-# mark and crop area parameter
-x = 0
-y = 0
-w = 0
-h = 0
+# 标注区的左上角坐标和长宽
+x = 100
+y = 600
+w = 350
+h = 350
 
 root_path = os.getcwd()
 img_path = os.path.join(root_path, 'mark_img')
 results_path = os.path.join(root_path, 'mark_results')
+crop_path = os.path.join(root_path, 'mark_results', 'crop_results')
 
-print(root_path)
-print(img_path)
-print(results_path)
+img_list = os.listdir(img_path)
+
+print("Start...")
+for img_name in img_list:
+    img = cv2.imread(os.path.join(img_path, img_name))
+
+    # 裁剪
+    img_name_cropped = img_name + '_cropped'
+    img_cropped = img[y:y+h, x:x+w]
+    cv2.imwrite(os.path.join(crop_path, img_name_cropped), img_cropped)
+
+    # 标框
+    left_top = (x, y)
+    right_bottom = (x + w, y + h)
+    img_name_marked = img_name + '_marked'
+    cv2.rectangle(img, left_top, right_bottom, (0, 0, 255), 5)
+    cv2.imwrite(os.path.join(results_path, img_name_marked), img)
+
+
+print("Finished!!!")
