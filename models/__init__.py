@@ -8,6 +8,8 @@
 """
 from .srgan_models import SRResNet, Discriminator
 from .esrgan_models import RRDBNet, RaDiscriminator
+from .resrgan_models import SRRDBNet, RERaDiscriminator
 
 
-__all__ = ['SRResNet', 'Discriminator', 'RRDBNet', 'RaDiscriminator']
+__all__ = ['SRResNet', 'Discriminator', 'RRDBNet', 'RaDiscriminator',
+           'SRRDBNet', 'RERaDiscriminator']

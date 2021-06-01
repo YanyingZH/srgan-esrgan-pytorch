@@ -26,7 +26,7 @@ try:
 except OSError:
     pass
 
-model_path = os.path.join('experiments', opt['name'], 'models', 'netG_final.pth') # models path
+model_path = os.path.join('experiments', opt['name'], 'models', 'netG_e129.pth') # models path
 device = torch.device('cuda')  # if you want to run on CPU, change 'cuda' -> cpu
 # device = torch.device('cpu')
 
