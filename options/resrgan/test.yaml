@@ -1,0 +1,10 @@
+# general settings
+name: 006_ESRGAN_x4_f64b16_DIV2K_100_B18G1_wandb_pretrained
+
+# network structures
+in_channels: 3
+ngf: 64
+ndf: 64
+num_blocks: 16
+num_grow: 32
+gaussian_noise: False
