@@ -1,6 +1,6 @@
 # general settings
-name: 009_RESRGANNoise_x4_f64b23_DIV2K_500_B18G1_wandb_pretrained
-batch_size: 18
+name: 009_RESRGANNoise_x4_f64b23_DIV2K_500_B16G1_wandb_pretrained
+batch_size: 16
 workers: 4
 total_iter: 500
 lr: !!float 1e-4

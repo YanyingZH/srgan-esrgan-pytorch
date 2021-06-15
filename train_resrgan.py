@@ -86,7 +86,7 @@ schedulerG = optim.lr_scheduler.MultiStepLR(optimizerG,
                                             gamma=opt['scheduler']['gamma'])
 
 # wandb
-os.environ['WANDB_MODE'] = 'offline'
+# os.environ['WANDB_MODE'] = 'offline'
 # 1. Start a new run
 wandb.init(project=opt['name'])
 
